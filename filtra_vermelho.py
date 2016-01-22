@@ -6,10 +6,15 @@ cv2.imshow('Original', im)
 
 hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
 
-cor_alvo_min = np.array([30,150,50])
-cor_alvo_max = np.array([255,255,180])
+# HSV
+# cor_alvo_min = np.array([30,150,50])
+# cor_alvo_max = np.array([255,255,180])
 
-mascara = cv2.inRange(hsv, cor_alvo_min, cor_alvo_max)
+# BGR
+cor_alvo_min = np.array([0,0,80])
+cor_alvo_max = np.array([50,50,255])
+
+mascara = cv2.inRange(im, cor_alvo_min, cor_alvo_max)
 resultado = cv2.bitwise_and(im, im, mask=mascara)
 
 cv2.imshow('Resultado', resultado)
