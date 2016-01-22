@@ -10,8 +10,13 @@ cor_alvo_max = np.array([30,30,255])
 
 mascara = cv2.inRange(im, cor_alvo_min, cor_alvo_max)
 resultado = cv2.bitwise_and(im, im, mask=mascara)
+inv_masc = 255 - mascara
 
-cv2.imshow('Resultado', resultado)
+detector = cv2.SimpleBlobDetector()
+keypoints = detector.detect(mascara)
+im_with_keypoints = cv2.drawKeypoints(inv_masc, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+cv2.imshow("Keypoints", im_with_keypoints)
 
 key = 0
 while key != 27:
