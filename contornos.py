@@ -14,6 +14,8 @@ while key != 27 and key != 1048603:
     mascara = cv2.inRange(im, cor_alvo_min, cor_alvo_max)
     contornos, hierarquia = cv2.findContours(mascara, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
+    # TODO substituir por retângulos
+    # http://stackoverflow.com/questions/16265627/blob-detection-with-python-opencv
     cv2.drawContours(im, contornos, -1, (0,255,255), 3)
     
     cv2.imshow('Tratado', im)
