@@ -41,7 +41,12 @@ while key != 27 and key != 1048603:
                                ret_y+ret_h),
                               (0,255,255),2)
 
-    print objetos
+    # print objetos
+    cv2.putText(im,
+                u'Encontrei %d objetos' % objetos,
+                (10,450),
+                cv2.FONT_HERSHEY_TRIPLEX, 1, (255,255,255))
+
     cv2.imshow('Resultado', im)
     # cv2.imshow('Resultado', resultado)
     
