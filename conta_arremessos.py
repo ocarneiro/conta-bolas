@@ -3,6 +3,7 @@
 
 import cv2
 import numpy as np
+import time
 
 # key pressed (used to escape screen and close)
 key = 0
@@ -13,12 +14,15 @@ captura = cv2.VideoCapture(0)
 # quantidade de arremessos
 arremessos = 0
 
-#linha verde
+# linha verde
 altura_linha = 170
 
 visivel = False # a bola está na tela?
 abaixo = False  # abaixo da linha?
 acima = False   # ou acima dela?
+
+# momento da última iteração
+ultima_vez = time.time()
 
 while key != 27 and key != 1048603: # tecla ESC no notebook e no desktop
     _, im = captura.read()
@@ -61,7 +65,10 @@ while key != 27 and key != 1048603: # tecla ESC no notebook e no desktop
 
     # conta
     if acima and abaixo:
+        if time.time() - ultima_vez > 2:
+            arremessos = 0
         arremessos += 1
+        ultima_vez = time.time()
         abaixo = False
         acima = False
 
