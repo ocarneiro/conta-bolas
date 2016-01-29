@@ -55,10 +55,11 @@ while key != 27 and key != 1048603: # tecla ESC no notebook e no desktop
     if visivel:
         if ret_y < altura_linha:
             acima = True
-            abaixo = False
         else:
             abaixo = True
+            acima = False
 
+    # conta
     if acima and abaixo:
         arremessos += 1
         abaixo = False
