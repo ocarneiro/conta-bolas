@@ -4,7 +4,7 @@
 import cv2
 import numpy as np
 import time
-from calibration import Calibrator
+from calibration import Calibrator, Colors
 
 mirror_mode = True  # flips horizontally
 
@@ -12,7 +12,7 @@ mirror_mode = True  # flips horizontally
 key = 0
 
 # read stream from a webcam
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 
 # throws count
 counting = 0
@@ -27,15 +27,33 @@ over = False     # or over it?
 # moment of the last counting
 last_time = time.time()
 
+# BGR
+b, g, r = 0, 0, 80
+min_target_color = np.array([b, g, r])
+bm, gm, rm = 30, 30, 255
+max_target_color = np.array([bm, gm, rm])
+
+colors = Colors(b,g,r,bm,gm,rm)
+cal = Calibrator()
+
 while key != 27 and key != 1048603:  # ESC key
+    #if key != -1: print key
+
     _, im = capture.read()
+
+    if key == 99:  # 'c' (calibrate)
+        print min_target_color
+        print max_target_color
+        colors = cal.calibrate(im, colors)
+        b, g, r = colors.colors['min']
+        min_target_color = np.array([b,g,r])
+        bm, gm, rm = colors.colors['max']
+        max_target_color = np.array([bm,gm,rm])
+        print min_target_color
+        print max_target_color
 
     if mirror_mode:
         cv2.flip(im, 1, im)
-
-    # BGR
-    min_target_color = np.array([0, 0, 80])
-    max_target_color = np.array([30, 30, 255])
 
     # filters out what is not red
     mask = cv2.inRange(im, min_target_color, max_target_color)
@@ -88,6 +106,6 @@ while key != 27 and key != 1048603:  # ESC key
 
     key = cv2.waitKey(10)
 
-if __name__ == '__main__':
-    cal = Calibrator()
-    print cal.calibrate(im)
+# if __name__ == '__main__':
+#     cal = Calibrator()
+#     print cal.calibrate(im)
