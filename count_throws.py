@@ -4,6 +4,7 @@
 import cv2
 import numpy as np
 import time
+from calibration import Calibrator
 
 mirror_mode = True  # flips horizontally
 
@@ -86,3 +87,7 @@ while key != 27 and key != 1048603:  # ESC key
     cv2.imshow('Result', im)
 
     key = cv2.waitKey(10)
+
+if __name__ == '__main__':
+    cal = Calibrator()
+    print cal.calibrate(im)
