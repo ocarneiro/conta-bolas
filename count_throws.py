@@ -7,12 +7,13 @@ import time
 from calibration import Calibrator, Colors
 
 mirror_mode = True  # flips horizontally
+debug_mode = False  # draws all contours
 
 # key pressed (used to escape screen and close)
 key = 0
 
 # read stream from a webcam
-capture = cv2.VideoCapture(1)
+capture = cv2.VideoCapture(0)
 
 # throws count
 counting = 0
@@ -37,11 +38,14 @@ colors = Colors(b,g,r,bm,gm,rm)
 cal = Calibrator()
 
 while key != 27 and key != 1048603:  # ESC key
-    #if key != -1: print key
+    if key != -1: print key
 
     _, im = capture.read()
 
-    if key == 99:  # 'c' (calibrate)
+    if key == 1048676:  # 'd' (debug)
+        debug_mode = not debug_mode
+
+    if key == 99 or key == 1048675:  # 'c' (calibrate)
         print min_target_color
         print max_target_color
         colors = cal.calibrate(im, colors)
@@ -62,6 +66,8 @@ while key != 27 and key != 1048603:  # ESC key
     contours, _ = cv2.findContours(mask,
                                    cv2.RETR_TREE,
                                    cv2.CHAIN_APPROX_SIMPLE)
+    if debug_mode:
+        cv2.drawContours(im, contours, -1, (255,255,255), 3)
 
     # draws green line
     cv2.line(im,
