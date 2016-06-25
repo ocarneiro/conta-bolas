@@ -12,20 +12,24 @@ FILLED = -1
 INCREMENT = 2
 SCALE = INCREMENT
 RED = (0,0,255)
+GREEN = (0,255,0)
+BLUE = (255,0,0)
 MIN_VALUE = 0
 MAX_VALUE = 25
+DOT_SIZE = 20 
 
 class ColorValue(object):
-    def __init__(self, init_value):
+    def __init__(self, init_value, color):
         self.value = init_value
+        self.color = color
 
-    def decrease(self, amount):
-        self.value -= amount
+    def decrease(self):
+        self.value -= INCREMENT
         if self.value < MIN_VALUE:
             self.value = MIN_VALUE 
 
-    def increase(self, amount):
-        self.value += amount
+    def increase(self):
+        self.value += INCREMENT
         if self.value > MAX_VALUE:
             self.value = MAX_VALUE 
 
@@ -37,7 +41,9 @@ class Juggling(object):
     def __init__(self, capture):
         self.mirror_mode = True
         self.window_name = WINDOW_NAME
-        self.r = ColorValue(20)
+        self.r = ColorValue(20, RED)
+        self.g = ColorValue(20, GREEN)
+        self.b = ColorValue(20, BLUE)
         self.capture = capture
         self.get_feed()
 
@@ -51,10 +57,17 @@ class Juggling(object):
 
     def act_on_key(self, key):
         if key == 113:
-            self.r.decrease(INCREMENT)
+            self.r.decrease()
         if key == 97:
-            self.r.increase(INCREMENT)
-#        print key
+            self.r.increase()
+        if key == 119:
+            self.g.decrease()
+        if key == 115:
+            self.g.increase()
+        if key == 101:
+            self.b.decrease()
+        if key == 100:
+            self.b.increase()
 
 
 # setup webcam
@@ -66,7 +79,9 @@ key = 0
 
 while key != 27 and key != 1048603:
     j.get_feed()
-    cv2.circle(j.image, (MARGIN_LEFT, MARGIN_TOP + j.r.value * SCALE), 10, RED, FILLED)
+    cv2.circle(j.image, (MARGIN_LEFT, MARGIN_TOP + j.r.value * SCALE), DOT_SIZE/2, j.r.color, FILLED)
+    cv2.circle(j.image, (MARGIN_LEFT + DOT_SIZE, MARGIN_TOP + j.g.value * SCALE), DOT_SIZE/2, j.g.color, FILLED)
+    cv2.circle(j.image, (MARGIN_LEFT + 2*DOT_SIZE, MARGIN_TOP + j.b.value * SCALE), DOT_SIZE/2, j.b.color, FILLED)
     j.show()
     key = cv2.waitKey(10)
     if key >= 0:
