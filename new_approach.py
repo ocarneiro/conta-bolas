@@ -46,6 +46,14 @@ class Juggling(object):
         self.b = ColorValue(20, BLUE)
         self.capture = capture
         self.get_feed()
+        self.key_map = {
+            113: self.r.decrease,
+            97:  self.r.increase,
+            119: self.g.decrease,
+            115: self.g.increase,
+            101: self.b.decrease,
+            100: self.b.increase
+        }
 
     def get_feed(self):
         _, self.image = self.capture.read()
@@ -56,32 +64,29 @@ class Juggling(object):
         cv2.imshow(self.window_name, self.image)
 
     def act_on_key(self, key):
-        if key == 113:
-            self.r.decrease()
-        if key == 97:
-            self.r.increase()
-        if key == 119:
-            self.g.decrease()
-        if key == 115:
-            self.g.increase()
-        if key == 101:
-            self.b.decrease()
-        if key == 100:
-            self.b.increase()
+        if key in self.key_map:
+            self.key_map[key]()
 
+    def draw_sliders(self):
+        j = self
+        cv2.circle(j.image, 
+                   (MARGIN_LEFT, MARGIN_TOP + j.r.value * SCALE), 
+                   DOT_SIZE/2, j.r.color, FILLED)
+        cv2.circle(j.image, 
+                   (MARGIN_LEFT + DOT_SIZE, MARGIN_TOP + j.g.value * SCALE), 
+                   DOT_SIZE/2, j.g.color, FILLED)
+        cv2.circle(j.image, 
+                   (MARGIN_LEFT + 2*DOT_SIZE, MARGIN_TOP + j.b.value * SCALE), 
+                   DOT_SIZE/2, j.b.color, FILLED)
 
 # setup webcam
 capture = cv2.VideoCapture(0)
-
 j = Juggling(capture)
-
 key = 0
 
 while key != 27 and key != 1048603:
     j.get_feed()
-    cv2.circle(j.image, (MARGIN_LEFT, MARGIN_TOP + j.r.value * SCALE), DOT_SIZE/2, j.r.color, FILLED)
-    cv2.circle(j.image, (MARGIN_LEFT + DOT_SIZE, MARGIN_TOP + j.g.value * SCALE), DOT_SIZE/2, j.g.color, FILLED)
-    cv2.circle(j.image, (MARGIN_LEFT + 2*DOT_SIZE, MARGIN_TOP + j.b.value * SCALE), DOT_SIZE/2, j.b.color, FILLED)
+    j.draw_sliders()
     j.show()
     key = cv2.waitKey(10)
     if key >= 0:
