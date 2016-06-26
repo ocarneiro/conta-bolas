@@ -12,17 +12,18 @@ MARGIN_TOP = 400
 FILLED = -1
 INCREMENT = 2
 SCALE = 1
-RED = (0,0,255)
-GREEN = (0,255,0)
-BLUE = (255,0,0)
-WHITE = (255,255,255)
+RED = (0, 0, 255)
+GREEN = (0, 255, 0)
+BLUE = (255, 0, 0)
+WHITE = (255, 255, 255)
 MIN_VALUE = 0
 MAX_VALUE = 255
-DOT_SIZE = 20 
+DOT_SIZE = 20
 # INIT_VALUES = (10,20,30,40,250,260)
-# INIT_VALUES = (94, 86, 52, 124, 255, 169) # for blue ball
-# INIT_VALUES = (120, 98, 126, 191, 255, 255) # for red ball
-INIT_VALUES = (22, 112, 126, 191, 193, 255) # for yellow ball
+# INIT_VALUES = (94, 86, 52, 124, 255, 169)  # for blue ball
+# INIT_VALUES = (120, 98, 126, 191, 255, 255)  # for red ball
+INIT_VALUES = (22, 112, 126, 191, 193, 255)  # for yellow ball
+
 
 class Slider(object):
     def __init__(self, init_value, color, position, plus_key, minus_key):
@@ -35,15 +36,16 @@ class Slider(object):
     def decrease(self):
         self.value -= INCREMENT
         if self.value < MIN_VALUE:
-            self.value = MIN_VALUE 
+            self.value = MIN_VALUE
 
     def increase(self):
         self.value += INCREMENT
         if self.value > MAX_VALUE:
-            self.value = MAX_VALUE 
+            self.value = MAX_VALUE
 
     def __str__(self):
         return str(self.value)
+
 
 class Juggling(object):
 
@@ -76,11 +78,11 @@ class Juggling(object):
         h = self.sliders['hue_min'].value
         s = self.sliders['sat_min'].value
         v = self.sliders['val_min'].value
-        min_target_color = np.array([h,s,v])
+        min_target_color = np.array([h, s, v])
         h = self.sliders['hue_max'].value
         s = self.sliders['sat_max'].value
         v = self.sliders['val_max'].value
-        max_target_color = np.array([h,s,v])
+        max_target_color = np.array([h, s, v])
         mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
         cv2.imshow("mask", mask)
 
@@ -91,8 +93,8 @@ class Juggling(object):
             print key
 
     def draw_slider(self, slider):
-        cv2.circle(self.display, 
-                   (slider.position, MARGIN_TOP - slider.value * SCALE), 
+        cv2.circle(self.display,
+                   (slider.position, MARGIN_TOP - slider.value * SCALE),
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self):
@@ -115,4 +117,4 @@ while key != 27 and key != 1048603:
         j.act_on_key(key)
 
 for item in ("hue_min", "sat_min", "val_min", "hue_max", "sat_max", "val_max"):
-    print "%s," % j.sliders[item].value ,
+    print "%s," % j.sliders[item].value,
