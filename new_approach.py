@@ -14,15 +14,18 @@ SCALE = INCREMENT
 RED = (0,0,255)
 GREEN = (0,255,0)
 BLUE = (255,0,0)
+WHITE = (255,255,255)
 MIN_VALUE = 0
 MAX_VALUE = 25
 DOT_SIZE = 20 
 
-class ColorSlider(object):
-    def __init__(self, init_value, color, position):
+class Slider(object):
+    def __init__(self, init_value, color, position, minus_key, plus_key):
         self.value = init_value
         self.color = color
         self.position = MARGIN_LEFT + position * DOT_SIZE
+        self.minus_key = minus_key
+        self.plus_key = plus_key
 
     def decrease(self):
         self.value -= INCREMENT
@@ -42,22 +45,20 @@ class Juggling(object):
     def __init__(self, capture):
         self.mirror_mode = True
         self.window_name = WINDOW_NAME
-        self.r = ColorSlider(20, RED, 0)
-        self.g = ColorSlider(20, GREEN, 1)
-        self.b = ColorSlider(20, BLUE, 2)
-        self.hmax = ColorSlider(20, RED, 3)
-        self.smax = ColorSlider(20, GREEN, 4)
-        self.vmax = ColorSlider(20, BLUE, 5)
+        self.sliders = {
+                "hue_min": Slider(50, GREEN, 0, 113, 97),
+                "sat_min": Slider(50, RED, 1, 119, 115),
+                "val_min": Slider(50, WHITE, 2, 101, 100),
+                "hue_max": Slider(50, GREEN, 3, 114, 102),
+                "sat_max": Slider(50, RED, 4, 116, 103),
+                "val_max": Slider(50, WHITE, 5, 121, 104)
+                 }
         self.capture = capture
         self.get_feed()
-        self.key_map = {
-            113: self.r.decrease, 97:  self.r.increase, # red slider
-            119: self.g.decrease, 115: self.g.increase, # green slider
-            101: self.b.decrease, 100: self.b.increase,  # blue slider
-            114: self.hmax.decrease, 102: self.hmax.increase,
-            116: self.smax.decrease, 103: self.smax.increase,
-            121: self.vmax.decrease, 104: self.vmax.increase
-         }
+        self.key_map = {}
+        for _, slider in self.sliders.iteritems():
+            self.key_map[slider.minus_key] = slider.decrease
+            self.key_map[slider.plus_key] = slider.increase
 
     def get_feed(self):
         _, self.image = self.capture.read()
@@ -79,8 +80,7 @@ class Juggling(object):
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self):
-        # TODO create a list of sliders to iterate here
-        for slider in (self.r, self.g, self.b, self.hmax, self.smax, self.vmax):
+        for _, slider in self.sliders.iteritems():
             self.draw_slider(slider)
 
 
