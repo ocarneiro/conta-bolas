@@ -27,7 +27,7 @@ INIT_VALUES = (94, 86, 52, 124, 255, 169)
 PRESET_BLUE = (94, 86, 52, 124, 255, 169)  # for blue ball
 PRESET_RED = (114, 102, 124, 185, 255, 255)  # for red ball
 PRESET_YELLOW = (18, 102, 122, 75, 193, 255)  # for yellow ball
-
+PRESET_BANK = (PRESET_BLUE, PRESET_RED, PRESET_YELLOW)
 
 class Slider(object):
     """Control containing its value, presentation color,
@@ -73,11 +73,27 @@ class Juggling(object):
         self.capture = capture
         self.get_feed()
         self.init_keys()
+        self.preset_applied = 0
 
     def apply_preset(self, preset):
         """Set parameters as defined in preset list or tuple"""
         for num, name in enumerate(PARAM_NAMES):
             self.sliders[name].value = preset[num]
+
+    def toggle_preset(self):
+        self.preset_applied += 1
+        if self.preset_applied >= len(PRESET_BANK):
+            self.preset_applied = 0
+        self.apply_preset(PRESET_BANK[self.preset_applied])
+
+    def apply_red(self):
+        self.apply_preset(PRESET_RED)
+
+    def apply_blue(self):
+        self.apply_preset(PRESET_BLUE)
+
+    def apply_yellow(self):
+        self.apply_preset(PRESET_YELLOW)
 
     def init_keys(self):
         """Sets functions for keys pressed"""
@@ -88,6 +104,9 @@ class Juggling(object):
             self.key_map[slider.plus_key] = slider.increase
         # set function key F1 for debug mode
         self.key_map[65470] = self.toggle_debug_mode  # F1
+        # set presets for F2, F3 and F4
+        # set toggle preset to F5
+        self.key_map[65474] = self.toggle_preset
 
     def toggle_debug_mode(self):
         self.debug_mode = not self.debug_mode
