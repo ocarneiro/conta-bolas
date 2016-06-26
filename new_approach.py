@@ -18,10 +18,11 @@ MIN_VALUE = 0
 MAX_VALUE = 25
 DOT_SIZE = 20 
 
-class ColorValue(object):
-    def __init__(self, init_value, color):
+class ColorSlider(object):
+    def __init__(self, init_value, color, position):
         self.value = init_value
         self.color = color
+        self.position = position
 
     def decrease(self):
         self.value -= INCREMENT
@@ -41,18 +42,15 @@ class Juggling(object):
     def __init__(self, capture):
         self.mirror_mode = True
         self.window_name = WINDOW_NAME
-        self.r = ColorValue(20, RED)
-        self.g = ColorValue(20, GREEN)
-        self.b = ColorValue(20, BLUE)
+        self.r = ColorSlider(20, RED, MARGIN_LEFT)
+        self.g = ColorSlider(20, GREEN, MARGIN_LEFT + DOT_SIZE)
+        self.b = ColorSlider(20, BLUE, MARGIN_LEFT + 2 * DOT_SIZE)
         self.capture = capture
         self.get_feed()
         self.key_map = {
-            113: self.r.decrease,
-            97:  self.r.increase,
-            119: self.g.decrease,
-            115: self.g.increase,
-            101: self.b.decrease,
-            100: self.b.increase
+            113: self.r.decrease, 97:  self.r.increase, # red slider
+            119: self.g.decrease, 115: self.g.increase, # green slider
+            101: self.b.decrease, 100: self.b.increase  # blue slider
         }
 
     def get_feed(self):
@@ -67,17 +65,15 @@ class Juggling(object):
         if key in self.key_map:
             self.key_map[key]()
 
+    def draw_slider(self, slider):
+        cv2.circle(self.image, 
+                   (slider.position, MARGIN_TOP + slider.value * SCALE), 
+                   DOT_SIZE/2, slider.color, FILLED)
+
     def draw_sliders(self):
-        j = self
-        cv2.circle(j.image, 
-                   (MARGIN_LEFT, MARGIN_TOP + j.r.value * SCALE), 
-                   DOT_SIZE/2, j.r.color, FILLED)
-        cv2.circle(j.image, 
-                   (MARGIN_LEFT + DOT_SIZE, MARGIN_TOP + j.g.value * SCALE), 
-                   DOT_SIZE/2, j.g.color, FILLED)
-        cv2.circle(j.image, 
-                   (MARGIN_LEFT + 2*DOT_SIZE, MARGIN_TOP + j.b.value * SCALE), 
-                   DOT_SIZE/2, j.b.color, FILLED)
+        for slider in (self.r, self.g, self.b):
+            self.draw_slider(slider)
+
 
 # setup webcam
 capture = cv2.VideoCapture(0)
