@@ -20,12 +20,20 @@ MIN_VALUE = 0
 MAX_VALUE = 255
 DOT_SIZE = 20
 
-INIT_VALUES = (94, 86, 52, 124, 255, 169)  # for blue ball
-# INIT_VALUES = (114, 102, 124, 185, 255, 255)  # for red ball
-# INIT_VALUES = (18, 102, 122, 75, 193, 255)  # for yellow ball
+PARAM_NAMES = ("hue_min", "sat_min", "val_min",
+               "hue_max", "sat_max", "val_max")
+INIT_VALUES = (94, 86, 52, 124, 255, 169)
+
+PRESET_BLUE = (94, 86, 52, 124, 255, 169)  # for blue ball
+PRESET_RED = (114, 102, 124, 185, 255, 255)  # for red ball
+PRESET_YELLOW = (18, 102, 122, 75, 193, 255)  # for yellow ball
 
 
 class Slider(object):
+    """Control containing its value, presentation color,
+        position (integer indicating a slot on the screen),
+        plus and minus keys (keys that add or subtract from value"""
+
     def __init__(self, init_value, color, position, plus_key, minus_key):
         self.value = init_value
         self.color = color
@@ -48,6 +56,7 @@ class Slider(object):
 
 
 class Juggling(object):
+    """Main class, responsible for the whole logic and setup"""
 
     def __init__(self, capture):
         self.mirror_mode = True
@@ -64,6 +73,11 @@ class Juggling(object):
         self.capture = capture
         self.get_feed()
         self.init_keys()
+
+    def apply_preset(self, preset):
+        """Set parameters as defined in preset list or tuple"""
+        for num, name in enumerate(PARAM_NAMES):
+            self.sliders[name].value = preset[num]
 
     def init_keys(self):
         """Sets functions for keys pressed"""
@@ -137,6 +151,5 @@ capture = cv2.VideoCapture(0)
 j = Juggling(capture)
 j.play()
 
-for item in ("hue_min", "sat_min", "val_min",
-             "hue_max", "sat_max", "val_max"):
+for item in PARAM_NAMES:
     print "%s," % j.sliders[item].value,
