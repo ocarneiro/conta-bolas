@@ -4,9 +4,9 @@
 import cv2
 import numpy as np
 
-mirror_mode = True
-
 WINDOW_NAME = "ocarneiro/conta-bolas"
+DEBUG_WINDOW = "DEBUG"
+
 MARGIN_LEFT = 10
 MARGIN_TOP = 400
 FILLED = -1
@@ -51,6 +51,7 @@ class Juggling(object):
 
     def __init__(self, capture):
         self.mirror_mode = True
+        self.debug_mode = False
         self.window_name = WINDOW_NAME
         self.sliders = {
                 "hue_min": Slider(INIT_VALUES[0], GREEN, 0, 113, 97),
@@ -62,18 +63,29 @@ class Juggling(object):
                  }
         self.capture = capture
         self.get_feed()
+        self.init_keys()
+
+    def init_keys(self):
+        """Sets functions for keys pressed"""
         self.key_map = {}
+        # uses keys defined on slider initialization
         for _, slider in self.sliders.iteritems():
             self.key_map[slider.minus_key] = slider.decrease
             self.key_map[slider.plus_key] = slider.increase
+        # set function key F1 for debug mode
+        self.key_map[65470] = self.toggle_debug_mode  # F1
+
+    def toggle_debug_mode(self):
+        self.debug_mode = not self.debug_mode
+        if not self.debug_mode:
+            cv2.destroyWindow(DEBUG_WINDOW)
 
     def get_feed(self):
         _, self.image = self.capture.read()
         if self.mirror_mode:
             cv2.flip(self.image, 1, self.image)
 
-    def play(self):
-        cv2.imshow(self.window_name, self.display)
+    def mask_image(self):
         hsv_im = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
         h = self.sliders['hue_min'].value
         s = self.sliders['sat_min'].value
@@ -83,8 +95,24 @@ class Juggling(object):
         s = self.sliders['sat_max'].value
         v = self.sliders['val_max'].value
         max_target_color = np.array([h, s, v])
-        mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
-        cv2.imshow("mask", mask)
+        self.mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
+
+    def play(self):
+        key = 0
+        j = self
+        while key != 27 and key != 1048603:
+            j.get_feed()
+            j.draw_sliders()
+            cv2.imshow(self.window_name, self.display)
+
+            key = cv2.waitKey(10)
+            if key >= 0:
+                j.act_on_key(key)
+
+            self.mask_image()
+
+            if self.debug_mode:
+                cv2.imshow(DEBUG_WINDOW, self.mask)
 
     def act_on_key(self, key):
         if key in self.key_map:
@@ -106,15 +134,8 @@ class Juggling(object):
 # setup webcam
 capture = cv2.VideoCapture(0)
 j = Juggling(capture)
-key = 0
+j.play()
 
-while key != 27 and key != 1048603:
-    j.get_feed()
-    j.draw_sliders()
-    j.play()
-    key = cv2.waitKey(10)
-    if key >= 0:
-        j.act_on_key(key)
-
-for item in ("hue_min", "sat_min", "val_min", "hue_max", "sat_max", "val_max"):
+for item in ("hue_min", "sat_min", "val_min",
+             "hue_max", "sat_max", "val_max"):
     print "%s," % j.sliders[item].value,
