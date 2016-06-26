@@ -19,10 +19,10 @@ WHITE = (255, 255, 255)
 MIN_VALUE = 0
 MAX_VALUE = 255
 DOT_SIZE = 20
-# INIT_VALUES = (10,20,30,40,250,260)
-# INIT_VALUES = (94, 86, 52, 124, 255, 169)  # for blue ball
-# INIT_VALUES = (120, 98, 126, 191, 255, 255)  # for red ball
-INIT_VALUES = (22, 112, 126, 191, 193, 255)  # for yellow ball
+
+INIT_VALUES = (94, 86, 52, 124, 255, 169)  # for blue ball
+# INIT_VALUES = (114, 102, 124, 185, 255, 255)  # for red ball
+# INIT_VALUES = (18, 102, 122, 75, 193, 255)  # for yellow ball
 
 
 class Slider(object):
