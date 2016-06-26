@@ -105,6 +105,9 @@ class Juggling(object):
         # set function key F1 for debug mode
         self.key_map[65470] = self.toggle_debug_mode  # F1
         # set presets for F2, F3 and F4
+        self.key_map[65471] = self.apply_red
+        self.key_map[65472] = self.apply_blue
+        self.key_map[65473] = self.apply_yellow
         # set toggle preset to F5
         self.key_map[65474] = self.toggle_preset
 
@@ -119,6 +122,8 @@ class Juggling(object):
             cv2.flip(self.image, 1, self.image)
 
     def mask_image(self):
+        """Converts image to HSV mode and filters color using values defined in sliders"""
+
         hsv_im = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
         h = self.sliders['hue_min'].value
         s = self.sliders['sat_min'].value
@@ -130,19 +135,37 @@ class Juggling(object):
         max_target_color = np.array([h, s, v])
         self.mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
 
+    def draw_contours(self):
+        """"""
+        # contours all the red objects found
+        contours, _ = cv2.findContours(self.mask.copy(),  # findContours changes the
+                                       cv2.RETR_TREE,     # source image, hence copy
+                                       cv2.CHAIN_APPROX_SIMPLE)
+        # rectangles
+        for contour in contours:
+            size = cv2.contourArea(contour)
+            if size > 300:  # only larger objects
+                ret_x, ret_y, ret_w, ret_h = cv2.boundingRect(contour)
+                cv2.rectangle(self.display, (ret_x, ret_y),
+                                  (ret_x+ret_w,
+                                   ret_y+ret_h),
+                                  (0, 255, 255), 2)
+
     def play(self):
         key = 0
         j = self
         while key != 27 and key != 1048603:
             j.get_feed()
             self.display = self.image  # TODO copy to add interaction later
-            cv2.imshow(self.window_name, self.display)
 
             key = cv2.waitKey(10)
             if key >= 0:
                 j.act_on_key(key)
 
             self.mask_image()
+            self.draw_contours()
+
+            cv2.imshow(self.window_name, self.display)
 
             if self.debug_mode:
                 self.debug_image = cv2.cvtColor(self.mask, cv2.COLOR_GRAY2BGR)
