@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import cv2
+import numpy as np
 
 mirror_mode = True
 
@@ -18,7 +19,10 @@ WHITE = (255,255,255)
 MIN_VALUE = 0
 MAX_VALUE = 255
 DOT_SIZE = 20 
-INIT_VALUES = (10,20,30,40,250,260)
+# INIT_VALUES = (10,20,30,40,250,260)
+# INIT_VALUES = (94, 86, 52, 124, 255, 169) # for blue ball
+# INIT_VALUES = (120, 98, 126, 191, 255, 255) # for red ball
+INIT_VALUES = (22, 112, 126, 191, 193, 255) # for yellow ball
 
 class Slider(object):
     def __init__(self, init_value, color, position, plus_key, minus_key):
@@ -67,7 +71,18 @@ class Juggling(object):
             cv2.flip(self.image, 1, self.image)
 
     def play(self):
-        cv2.imshow(self.window_name, self.image)
+        cv2.imshow(self.window_name, self.display)
+        hsv_im = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
+        h = self.sliders['hue_min'].value
+        s = self.sliders['sat_min'].value
+        v = self.sliders['val_min'].value
+        min_target_color = np.array([h,s,v])
+        h = self.sliders['hue_max'].value
+        s = self.sliders['sat_max'].value
+        v = self.sliders['val_max'].value
+        max_target_color = np.array([h,s,v])
+        mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
+        cv2.imshow("mask", mask)
 
     def act_on_key(self, key):
         if key in self.key_map:
@@ -76,11 +91,12 @@ class Juggling(object):
             print key
 
     def draw_slider(self, slider):
-        cv2.circle(self.image, 
+        cv2.circle(self.display, 
                    (slider.position, MARGIN_TOP - slider.value * SCALE), 
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self):
+        self.display = self.image.copy()
         for _, slider in self.sliders.iteritems():
             self.draw_slider(slider)
 
