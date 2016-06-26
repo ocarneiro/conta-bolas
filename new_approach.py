@@ -7,20 +7,21 @@ mirror_mode = True
 
 WINDOW_NAME = "ocarneiro/conta-bolas"
 MARGIN_LEFT = 10
-MARGIN_TOP = 10
+MARGIN_TOP = 400
 FILLED = -1
 INCREMENT = 2
-SCALE = INCREMENT
+SCALE = 1
 RED = (0,0,255)
 GREEN = (0,255,0)
 BLUE = (255,0,0)
 WHITE = (255,255,255)
 MIN_VALUE = 0
-MAX_VALUE = 25
+MAX_VALUE = 255
 DOT_SIZE = 20 
+INIT_VALUES = (10,20,30,40,250,260)
 
 class Slider(object):
-    def __init__(self, init_value, color, position, minus_key, plus_key):
+    def __init__(self, init_value, color, position, plus_key, minus_key):
         self.value = init_value
         self.color = color
         self.position = MARGIN_LEFT + position * DOT_SIZE
@@ -46,12 +47,12 @@ class Juggling(object):
         self.mirror_mode = True
         self.window_name = WINDOW_NAME
         self.sliders = {
-                "hue_min": Slider(50, GREEN, 0, 113, 97),
-                "sat_min": Slider(50, RED, 1, 119, 115),
-                "val_min": Slider(50, WHITE, 2, 101, 100),
-                "hue_max": Slider(50, GREEN, 3, 114, 102),
-                "sat_max": Slider(50, RED, 4, 116, 103),
-                "val_max": Slider(50, WHITE, 5, 121, 104)
+                "hue_min": Slider(INIT_VALUES[0], GREEN, 0, 113, 97),
+                "sat_min": Slider(INIT_VALUES[1], RED, 1, 119, 115),
+                "val_min": Slider(INIT_VALUES[2], WHITE, 2, 101, 100),
+                "hue_max": Slider(INIT_VALUES[3], GREEN, 3, 114, 102),
+                "sat_max": Slider(INIT_VALUES[4], RED, 4, 116, 103),
+                "val_max": Slider(INIT_VALUES[5], WHITE, 5, 121, 104)
                  }
         self.capture = capture
         self.get_feed()
@@ -76,7 +77,7 @@ class Juggling(object):
 
     def draw_slider(self, slider):
         cv2.circle(self.image, 
-                   (slider.position, MARGIN_TOP + slider.value * SCALE), 
+                   (slider.position, MARGIN_TOP - slider.value * SCALE), 
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self):
@@ -96,4 +97,6 @@ while key != 27 and key != 1048603:
     key = cv2.waitKey(10)
     if key >= 0:
         j.act_on_key(key)
-print j.r
+
+for item in ("hue_min", "sat_min", "val_min", "hue_max", "sat_max", "val_max"):
+    print "%s," % j.sliders[item].value ,
