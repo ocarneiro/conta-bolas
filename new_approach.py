@@ -102,7 +102,7 @@ class Juggling(object):
         j = self
         while key != 27 and key != 1048603:
             j.get_feed()
-            j.draw_sliders()
+            self.display = self.image  # TODO copy to add interaction later
             cv2.imshow(self.window_name, self.display)
 
             key = cv2.waitKey(10)
@@ -112,7 +112,9 @@ class Juggling(object):
             self.mask_image()
 
             if self.debug_mode:
-                cv2.imshow(DEBUG_WINDOW, self.mask)
+                self.debug_image = cv2.cvtColor(self.mask, cv2.COLOR_GRAY2BGR)
+                j.draw_sliders(self.debug_image)
+                cv2.imshow(DEBUG_WINDOW, self.debug_image)
 
     def act_on_key(self, key):
         if key in self.key_map:
@@ -120,15 +122,14 @@ class Juggling(object):
         else:
             print key
 
-    def draw_slider(self, slider):
-        cv2.circle(self.display,
+    def draw_slider(self, slider, image):
+        cv2.circle(image,
                    (slider.position, MARGIN_TOP - slider.value * SCALE),
                    DOT_SIZE/2, slider.color, FILLED)
 
-    def draw_sliders(self):
-        self.display = self.image.copy()
+    def draw_sliders(self, image):
         for _, slider in self.sliders.iteritems():
-            self.draw_slider(slider)
+            self.draw_slider(slider, image)
 
 
 # setup webcam
