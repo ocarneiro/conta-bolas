@@ -3,6 +3,7 @@
 
 import cv2
 import numpy as np
+import sys   # used to get command line parameter
 
 WINDOW_NAME = "ocarneiro/conta-bolas"
 DEBUG_WINDOW = "DEBUG"
@@ -28,6 +29,7 @@ PRESET_BLUE = (94, 86, 52, 124, 255, 169)  # for blue ball
 PRESET_RED = (114, 102, 124, 185, 255, 255)  # for red ball
 PRESET_YELLOW = (18, 102, 122, 75, 193, 255)  # for yellow ball
 PRESET_BANK = (PRESET_BLUE, PRESET_RED, PRESET_YELLOW)
+
 
 class Slider(object):
     """Control containing its value, presentation color,
@@ -122,7 +124,8 @@ class Juggling(object):
             cv2.flip(self.image, 1, self.image)
 
     def mask_image(self):
-        """Converts image to HSV mode and filters color using values defined in sliders"""
+        """Converts image to HSV mode and
+        filters color using values defined in sliders"""
 
         hsv_im = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
         h = self.sliders['hue_min'].value
@@ -133,13 +136,17 @@ class Juggling(object):
         s = self.sliders['sat_max'].value
         v = self.sliders['val_max'].value
         max_target_color = np.array([h, s, v])
-        self.mask = cv2.inRange(hsv_im, min_target_color, max_target_color)
+        self.mask = cv2.inRange(hsv_im,
+                                min_target_color,
+                                max_target_color)
 
     def draw_contours(self):
         """"""
-        # contours all the red objects found
-        contours, _ = cv2.findContours(self.mask.copy(),  # findContours changes the
-                                       cv2.RETR_TREE,     # source image, hence copy
+        # contours all the objects found
+        # (findContours changes the source image,
+        #  hence copy)
+        contours, _ = cv2.findContours(self.mask.copy(),
+                                       cv2.RETR_TREE,
                                        cv2.CHAIN_APPROX_SIMPLE)
         # rectangles
         for contour in contours:
@@ -147,9 +154,9 @@ class Juggling(object):
             if size > 300:  # only larger objects
                 ret_x, ret_y, ret_w, ret_h = cv2.boundingRect(contour)
                 cv2.rectangle(self.display, (ret_x, ret_y),
-                                  (ret_x+ret_w,
-                                   ret_y+ret_h),
-                                  (0, 255, 255), 2)
+                              (ret_x+ret_w,
+                               ret_y+ret_h),
+                              (0, 255, 255), 2)
 
     def play(self):
         key = 0
@@ -188,10 +195,32 @@ class Juggling(object):
             self.draw_slider(slider, image)
 
 
+def print_help():
+    print "Usage: "
+    print "python conta_bolas.py CAMERA RES_X RES_Y THRES"
+    print "CAMERA = index of webcam to be used"
+    print "RES_X = resolution width"
+    print "RES_Y = resolution height"
+    print "THRES = threshold for object detection"
+
+# default camera = 0
+camera = 0
 # setup webcam
-capture = cv2.VideoCapture(0)
+if len(sys.argv) > 1:
+    if 'h' in sys.argv[1]:
+        print_help()
+    else:
+        camera = int(sys.argv[1])
+
+capture = cv2.VideoCapture(camera)
+if len(sys.argv) > 2:
+    # cv2.VideoCapture.set(CV_CAP_PROP_FRAME_WIDTH, int(sys,argv[2]))
+    capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, int(sys.argv[2]))
+    capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, int(sys.argv[3]))
+
 j = Juggling(capture)
 j.play()
 
+# prints values last used for calibration
 for item in PARAM_NAMES:
     print "%s," % j.sliders[item].value,
