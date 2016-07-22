@@ -60,7 +60,7 @@ class Slider(object):
 class Juggling(object):
     """Main class, responsible for the whole logic and setup"""
 
-    def __init__(self, capture):
+    def __init__(self, capture, threshold):
         self.mirror_mode = True
         self.debug_mode = False
         self.window_name = WINDOW_NAME
@@ -73,6 +73,7 @@ class Juggling(object):
                 "val_max": Slider(INIT_VALUES[5], WHITE, 5, 121, 104)
                  }
         self.capture = capture
+        self.threshold = threshold
         self.get_feed()
         self.init_keys()
         self.preset_applied = 0
@@ -151,7 +152,7 @@ class Juggling(object):
         # rectangles
         for contour in contours:
             size = cv2.contourArea(contour)
-            if size > 300:  # only larger objects
+            if size > self.threshold:  # only larger objects
                 ret_x, ret_y, ret_w, ret_h = cv2.boundingRect(contour)
                 cv2.rectangle(self.display, (ret_x, ret_y),
                               (ret_x+ret_w,
@@ -205,6 +206,8 @@ def print_help():
 
 # default camera = 0
 camera = 0
+threshold = 300
+
 # setup webcam
 if len(sys.argv) > 1:
     if 'h' in sys.argv[1]:
@@ -217,8 +220,9 @@ if len(sys.argv) > 2:
     # cv2.VideoCapture.set(CV_CAP_PROP_FRAME_WIDTH, int(sys,argv[2]))
     capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, int(sys.argv[2]))
     capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, int(sys.argv[3]))
+    threshold = int(sys.argv[4])
 
-j = Juggling(capture)
+j = Juggling(capture, threshold)
 j.play()
 
 # prints values last used for calibration
