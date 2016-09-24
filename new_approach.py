@@ -193,24 +193,34 @@ class Juggling(object):
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self, image):
-        sliders = self.sliders.iteritems()
-        for _, slider in sliders:
+        # draw circles for slider positions
+        for _, slider in self.sliders.iteritems():
             self.draw_slider(slider, image)
-        '''
-        min_hsv = (sliders[0].value,
-                   sliders[1].value,
-                   sliders[2].value)
-        min_bgr = self.single_hsv2bgr(min_hsv)
-        cv2.rectangle(image,(0,0),(20,20),min_bgr)
-        '''
 
-    def single_hsv2bgr(self, h, s, v):
-        # creates a single pixel image
+        # draw color of min hsv threshold
+        min_hsv = self.get_hsv_color('min')
+        min_bgr = self.single_hsv2bgr(min_hsv)
+        cv2.rectangle(image, (0, 0), (60, 20),  # image, pos
+                      min_bgr, FILLED)  # color, filled
+
+        # draw color of max hsv threshold
+        max_hsv = self.get_hsv_color('max')
+        max_bgr = self.single_hsv2bgr(max_hsv)
+        cv2.rectangle(image, (61, 0), (120, 20),  # image, pos
+                      max_bgr, FILLED)  # color, filled
+
+    def single_hsv2bgr(self, hsv_color):
+        # creates a single pixel image (1 x 1 x 3 colors)
         temp_image = np.zeros((1,1,3), np.uint8)
         # paints the pixel in hsv
-        temp_image[0] = (h, s, v)
+        temp_image[0] = (hsv_color)
         temp_image = cv2.cvtColor(temp_image, cv2.COLOR_HSV2BGR)
-        return temp_image[0]
+        #print type(temp_image[0][0][0])
+        pixel = temp_image[0][0]
+        bgr_color = (pixel[0].item(),
+                     pixel[1].item(),
+                     pixel[2].item())
+        return bgr_color
 
 def print_help():
     print "Usage: "
