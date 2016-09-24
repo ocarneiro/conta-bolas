@@ -129,17 +129,18 @@ class Juggling(object):
         filters color using values defined in sliders"""
 
         hsv_im = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
-        h = self.sliders['hue_min'].value
-        s = self.sliders['sat_min'].value
-        v = self.sliders['val_min'].value
-        min_target_color = np.array([h, s, v])
-        h = self.sliders['hue_max'].value
-        s = self.sliders['sat_max'].value
-        v = self.sliders['val_max'].value
-        max_target_color = np.array([h, s, v])
+        min_target_color = self.get_hsv_color('min')
+        max_target_color = self.get_hsv_color('max')
         self.mask = cv2.inRange(hsv_im,
                                 min_target_color,
                                 max_target_color)
+
+    def get_hsv_color(self, minmax):
+        h = self.sliders['hue_' + minmax].value
+        s = self.sliders['sat_' + minmax].value
+        v = self.sliders['val_' + minmax].value
+        target_color = np.array([h, s, v])
+        return target_color
 
     def draw_contours(self):
         """"""
@@ -192,9 +193,24 @@ class Juggling(object):
                    DOT_SIZE/2, slider.color, FILLED)
 
     def draw_sliders(self, image):
-        for _, slider in self.sliders.iteritems():
+        sliders = self.sliders.iteritems()
+        for _, slider in sliders:
             self.draw_slider(slider, image)
+        '''
+        min_hsv = (sliders[0].value,
+                   sliders[1].value,
+                   sliders[2].value)
+        min_bgr = self.single_hsv2bgr(min_hsv)
+        cv2.rectangle(image,(0,0),(20,20),min_bgr)
+        '''
 
+    def single_hsv2bgr(self, h, s, v):
+        # creates a single pixel image
+        temp_image = np.zeros((1,1,3), np.uint8)
+        # paints the pixel in hsv
+        temp_image[0] = (h, s, v)
+        temp_image = cv2.cvtColor(temp_image, cv2.COLOR_HSV2BGR)
+        return temp_image[0]
 
 def print_help():
     print "Usage: "
