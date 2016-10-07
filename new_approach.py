@@ -169,6 +169,8 @@ class Juggling(object):
 
             key = cv2.waitKey(10)
             if key >= 0:
+                # removes modifiers (NumLock, Caps, etc)
+                key = key & 0xEFFFFF
                 j.act_on_key(key)
 
             self.mask_image()
